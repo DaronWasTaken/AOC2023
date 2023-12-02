@@ -43,38 +43,38 @@ func main() {
 		maxBlue := 0
 
 		for _, set := range sets {
-			colors := strings.Split(set, ",")
-			cubeCountPerColor := [3]int{0, 0, 0} // red, green, blue
+			setColors := strings.Split(set, ",")
+			colorsCubeCounts := [3]int{0, 0, 0} // red, green, blue
 
-			for _, color := range colors {
+			for _, colorStr := range setColors {
 				switch {
-				case strings.Contains(color, "red"):
-					extractCubeCountOfColor(color, &cubeCountPerColor, 0)
-					if maxRed < cubeCountPerColor[0] {
-						maxRed = cubeCountPerColor[0]
+				case strings.Contains(colorStr, "red"):
+					extractCubeCountOfColor(colorStr, &colorsCubeCounts[0]) //pass red
+					if maxRed < colorsCubeCounts[0] {
+						maxRed = colorsCubeCounts[0]
 					}
-				case strings.Contains(color, "green"):
-					extractCubeCountOfColor(color, &cubeCountPerColor, 1)
-					if maxGreen < cubeCountPerColor[1] {
-						maxGreen = cubeCountPerColor[1]
+				case strings.Contains(colorStr, "green"):
+					extractCubeCountOfColor(colorStr, &colorsCubeCounts[1])
+					if maxGreen < colorsCubeCounts[1] {
+						maxGreen = colorsCubeCounts[1]
 					}
-				case strings.Contains(color, "blue"):
-					extractCubeCountOfColor(color, &cubeCountPerColor, 2)
-					if maxBlue < cubeCountPerColor[2] {
-						maxBlue = cubeCountPerColor[2]
+				case strings.Contains(colorStr, "blue"):
+					extractCubeCountOfColor(colorStr, &colorsCubeCounts[2])
+					if maxBlue < colorsCubeCounts[2] {
+						maxBlue = colorsCubeCounts[2]
 					}
 				}
 			}
 
-			isBelowMax := true
-			for i := 0; i < len(cubeCountPerColor); i++ {
-				if cubeCountPerColor[i] > maxCubeCount[i] {
-					isBelowMax = false
+			isSetPossible := true
+			for i := 0; i < len(colorsCubeCounts); i++ {
+				if colorsCubeCounts[i] > maxCubeCount[i] {
+					isSetPossible = false
 					break
 				}
 			}
 
-			if isBelowMax {
+			if isSetPossible {
 				possibleSetCount++
 			}
 
@@ -93,6 +93,6 @@ func main() {
 }
 
 // 0 - red, 1 - green, 2 - blue
-func extractCubeCountOfColor(colorStr string, cubeCountPerColor *[3]int, colorId int) {
-	cubeCountPerColor[colorId], _ = strconv.Atoi(regexp.MustCompile("[0-9]+").FindString(colorStr))
+func extractCubeCountOfColor(colorStr string, cubeColorCount *int) {
+	*cubeColorCount, _ = strconv.Atoi(regexp.MustCompile("[0-9]+").FindString(colorStr))
 }
