@@ -8,6 +8,7 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const FilePath = "input.txt"
@@ -85,8 +86,8 @@ func main() {
 		maps = append(maps, *theMap)
 	}
 
-	partOne(&seeds, &maps)
-	partTwo(&seeds, &maps)
+	partTwo(seeds, &maps)
+
 }
 
 func partOne(seeds *[]int, maps *[]Map) {
@@ -110,12 +111,14 @@ func partOne(seeds *[]int, maps *[]Map) {
 	fmt.Println(minN)
 }
 
-func partTwo(seeds *[]int, maps *[]Map) {
-	var results []int
+// Splitting the input seeds into two to avoid oom
+func partTwo(seeds []int, maps *[]Map) {
+	var wg sync.WaitGroup
+	wg.Add(len(seeds) / 2)
 
-	for n := 0; n < len(*seeds); n += 2 {
-		start := (*seeds)[n]
-		end := (*seeds)[n] + (*seeds)[n+1]
+	partTwo := func(start int, end int, maps *[]Map) {
+		defer wg.Done()
+		var results []int
 		for i := start; i < end; i++ {
 			number := i
 			for _, currentMap := range *maps {
@@ -130,8 +133,16 @@ func partTwo(seeds *[]int, maps *[]Map) {
 			}
 			results = append(results, number)
 		}
+
+		minN := slices.Min(results)
+		fmt.Println(minN)
 	}
 
-	minN := slices.Min(results)
-	fmt.Println(minN)
+	for n := 0; n < len(seeds); n += 2 {
+		start := seeds[n]
+		end := seeds[n] + seeds[n+1]
+		go partTwo(start, end, maps)
+	}
+
+	wg.Wait()
 }
