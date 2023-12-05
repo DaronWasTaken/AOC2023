@@ -111,14 +111,13 @@ func partOne(seeds *[]int, maps *[]Map) {
 	fmt.Println(minN)
 }
 
-// Splitting the input seeds into two to avoid oom
 func partTwo(seeds []int, maps *[]Map) {
 	var wg sync.WaitGroup
 	wg.Add(len(seeds) / 2)
 
 	partTwo := func(start int, end int, maps *[]Map) {
 		defer wg.Done()
-		var results []int
+		var minValue int
 		for i := start; i < end; i++ {
 			number := i
 			for _, currentMap := range *maps {
@@ -131,11 +130,13 @@ func partTwo(seeds []int, maps *[]Map) {
 					}
 				}
 			}
-			results = append(results, number)
+			if i == start {
+				minValue = number
+			} else if number < minValue {
+				minValue = number
+			}
 		}
-
-		minN := slices.Min(results)
-		fmt.Println(minN)
+		fmt.Println(minValue)
 	}
 
 	for n := 0; n < len(seeds); n += 2 {
