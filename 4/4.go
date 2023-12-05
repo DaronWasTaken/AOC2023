@@ -12,6 +12,12 @@ import (
 
 const FilePath = "input.txt"
 
+type Game struct {
+	id                 int
+	winningNumbers     []string
+	scratchcardNumbers []string
+}
+
 func main() {
 	file, err := os.Open(FilePath)
 	if err != nil {
@@ -23,6 +29,10 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	sum := 0
 
+	var games []Game
+
+	gameCount := 0
+
 	for scanner.Scan() {
 
 		line := scanner.Text()
@@ -32,9 +42,9 @@ func main() {
 		winningNumbers := regexp.MustCompile(`\d+`).FindAllString(numbers[0], -1)
 		scratchcardNumbers := regexp.MustCompile(`\d+`).FindAllString(numbers[1], -1)
 
-		//fmt.Println(winningNumbers)
-		//fmt.Println(scratchcardNumbers)
+		games = append(games, Game{id: gameCount, winningNumbers: winningNumbers, scratchcardNumbers: scratchcardNumbers})
 
+		gameCount++
 		count := 0
 		points := 0
 
@@ -54,5 +64,25 @@ func main() {
 		sum += points
 	}
 
+	for i := 0; i < len(games); i++ {
+		count := 0
+		game := games[i]
+		for _, winningNumber := range game.winningNumbers {
+			if slices.Contains(game.scratchcardNumbers, winningNumber) {
+				count++
+			}
+		}
+
+		if count > 0 {
+			for n := 1; n <= count; n++ {
+				if n > len(games) {
+					break
+				}
+				games = append(games, games[game.id+n])
+			}
+		}
+	}
+
 	fmt.Printf("Sum of points: %d\n", sum)
+	fmt.Printf("Number of scratchcards: %d\n", len(games))
 }
