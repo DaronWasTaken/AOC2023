@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-const FilePath = "input_test2.txt"
+const FilePath = "input.txt"
 
 type HandType int
 
@@ -39,25 +39,16 @@ func main() {
 	var hands []Hand
 	for scanner.Scan() {
 		line := scanner.Text()
-
 		splits := strings.Split(line, " ")
 		cards := splits[0]
 		bid, err := strconv.Atoi(splits[1])
 		if err != nil {
 			log.Fatal(err)
 		}
-
 		hand := determineHand2(cards)
-		//fmt.Println(hand)
 		hand.Bid = bid
 		hands = append(hands, hand)
-
-		//fmt.Println(cards, "  ===>  ", bid, "  ===>  ", hand)
 	}
-
-	sort.Slice(hands, func(i, j int) bool {
-		return hands[i].Type > hands[j].Type
-	})
 
 	sort.Slice(hands, func(i, j int) bool {
 		if hands[i].Type != hands[j].Type {
@@ -70,7 +61,6 @@ func main() {
 		}
 		return true
 	})
-	//fmt.Println(hands)
 
 	for i, hand := range hands {
 		sum1 += hand.Bid * (i + 1)
@@ -98,18 +88,7 @@ func determineHand(hand string) Hand {
 		return rune(valueMap[byte(r)])
 	}, bytes)
 
-	//sort.Slice(bytes, func(i, j int) bool {
-	//	return bytes[i] < bytes[j]
-	//})
-	//slices.Reverse(bytes)
-
-	//fmt.Println(bytes)
-
 	cards := bytes2.Runes(bytes)
-
-	//sort.Slice(cards, func(i, j int) bool {
-	//	return cards[i] > cards[j]
-	//})
 
 	totalChar := make(map[rune]int)
 	for _, char := range hand {
@@ -148,7 +127,7 @@ func determineHand(hand string) Hand {
 
 func determineHand2(hand string) Hand {
 
-	valueMap := map[byte]int{
+	valueMap := map[rune]int{
 		'A': 13, 'K': 12, 'Q': 11, 'T': 10,
 		'9': 9, '8': 8, '7': 7, '6': 6, '5': 5, '4': 4,
 		'3': 3, '2': 2, 'J': 1,
@@ -156,51 +135,41 @@ func determineHand2(hand string) Hand {
 
 	bytes := []byte(hand)
 	bytes = bytes2.Map(func(r rune) rune {
-		return rune(valueMap[byte(r)])
+		return rune(valueMap[r])
 	}, bytes)
 
-	//sort.Slice(bytes, func(i, j int) bool {
-	//	return bytes[i] < bytes[j]
-	//})
-	//slices.Reverse(bytes)
-
-	//fmt.Println(bytes)
-
 	cards := bytes2.Runes(bytes)
-
-	//sort.Slice(cards, func(i, j int) bool {
-	//	return cards[i] > cards[j]
-	//})
-
 	joker := false
 
 	totalChar := make(map[rune]int)
 	for _, char := range hand {
-		totalChar[char] += 1
 		if char == 'J' {
 			joker = true
 			continue
 		}
+		totalChar[char] += 1
 	}
 
-	maxChar := ' '
+	maxChar := 'X'
 	maxVal := 0
 	count := 0
 
 	if joker {
-		first := true
 		for k, v := range totalChar {
 			count += v
-			if first || v > maxVal || (v == maxVal && k > maxChar) {
+			if v > maxVal {
 				maxChar = k
 				maxVal = v
-				first = false
+			} else if v == maxVal {
+				if valueMap[k] > valueMap[maxChar] {
+					maxChar = k
+				}
 			}
 		}
-		if maxVal > 2 {
-			if count == 4 {
-
-			}
+		if len(totalChar) < 4 {
+			totalChar[maxChar] += len(hand) - count
+		} else {
+			totalChar[maxChar] += 1
 		}
 	}
 
